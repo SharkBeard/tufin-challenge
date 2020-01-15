@@ -10,7 +10,7 @@ class TestCombine(unittest.TestCase):
     self.assertEqual(convert_line(line), 'any;0;1.0.0.255/any')
   def test_sample(self):
     ips = ['10.10.10.0/24','10.10.11.0/24','10.10.12.0/24']
-    self.assertEqual(combine_ips(ips), '10.10.10.0/23;10.10.12.0/24')
+    self.assertEqual(';'.join([str(ip) for ip in combine_ips(ips)]), '10.10.10.0/23;10.10.12.0/24')
   def test_mask(self):
     line = '1.2.3.4/255.255.0.0'
     self.assertEqual(convert_line(line), '1.2.3.4/255.255.0.0')
