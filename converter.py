@@ -3,13 +3,15 @@ from netaddr import *
 
 def combine_ips(ips):
   # convert to binary
-  # compare to get the lowest amount of subnets
-  merged_ips = cidr_merge(ips)
-  return ';'.join([str(ip) for ip in merged_ips])
+  # compare higher bits to see if they can be combined
+  # compare lower bits and check to see if they are enough 
+  #   contiguous ips to fill the next level out
+  # If so, merge them. If not, keep them seperate
+  return cidr_merge(ips)
 
 def convert_line(line):
   ips = line.split(',')
-  if len(ips) == 1 or len(ips) == 0: return ';'.join(ips)
+  if len(ips) < 2: return ';'.join(ips)
   verified = []
   invalid = []
   for ip in ips:
@@ -17,11 +19,17 @@ def convert_line(line):
       verified.append(ip)
     else:
       invalid.append(ip)
-  return combine_ips(verified) + ';'.join(invalid)
+  results = verified
+  if len(verified) >= 2:
+      results = combine_ips(verified)
+  if len(invalid) > 0:
+      results.extend(invalid)
+  return ';'.join([str(ip) for ip in results])
 
 def convert_file(input_filename, output_filename):
   inputfile = open(input_filename, "r")
   outputfile = open(output_filename, "w+")
+  lines = list()
 
   if inputfile.mode == 'r':
     contents = inputfile.readlines()
